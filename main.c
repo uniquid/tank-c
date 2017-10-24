@@ -43,7 +43,7 @@
 #define _EVER_ ;;
 //#define MAX_SIZEOF(var1, var2)  ( (sizeof((var1)) > sizeof((var2)) )? sizeof((var1)) : sizeof((var2)) )
 //static char buf[MAX_SIZEOF(pIdentity->keyPair.privateKey, pIdentity->keyPair.publicKey)*2+1];
-#define DEFAULT_INI_FILE "./machine_c.ini"
+#define DEFAULT_INI_FILE "./tank-c.ini"
 
 
 // Update Cache Thread
@@ -313,7 +313,7 @@ static int fake = 0;
 static char lbuffer[1024];
 
 /**
- * loads configuration parameters from ini_file - ./machine_c.ini
+ * loads configuration parameters from ini_file - ./tank-c.ini
  *
  * es file format:
  *
