@@ -311,6 +311,7 @@ void* service_provider(void *arg)
 
 static int fake = 0;
 static char lbuffer[1024];
+static char applianceUrl[256]= {0};
 
 /**
  * loads configuration parameters from ini_file - ./tank-c.ini
@@ -337,8 +338,8 @@ void loadConfiguration(char *ini_file)
 			snprintf(format, sizeof(format),  "mqtt_address: %%%zus\n", sizeof(mqtt_address) - 1);
 			sscanf(lbuffer, format,  mqtt_address);
 
-			snprintf(format, sizeof(format),  "UID_appliance: %%%zus\n", sizeof(UID_appliance) - 1);
-			sscanf(lbuffer, format,  UID_appliance);
+			snprintf(format, sizeof(format),  "UID_appliance: %%%zus\n", sizeof(applianceUrl) - 1);
+			if (1 == sscanf(lbuffer, format,  applianceUrl)) UID_pApplianceURL = applianceUrl;
 
 #pragma GCC diagnostic pop
 
