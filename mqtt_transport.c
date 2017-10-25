@@ -18,11 +18,9 @@
 
 /* include includes */
 #include <stdlib.h>
-#include <stdint.h>
 #include <pthread.h>
 #include <unistd.h>
 #include <string.h>
-#include <UID_identity.h>
 #include "mqtt_transport.h"
 #include "helpers.h"
 
@@ -138,7 +136,6 @@ static void connlost(void *context, char *cause)
     exit(-1);
 }
 
-static char lbuffer[1024];
 
 static void mqttConnect(void)
 {
@@ -171,8 +168,6 @@ static void mqttConnect(void)
     MQTTClient_unsubscribe(client, "#");
     if(NULL != ServerTopic) {
         MQTTClient_subscribe(client, ServerTopic, MQTT_QOS);
-	    snprintf(lbuffer, sizeof(lbuffer), "{\"name\":\"%s\",\"xpub\":\"%s\"}", ServerTopic, UID_getTpub());
-        MQTTClient_publish(client, "UID/announce", strlen(lbuffer), lbuffer, MQTT_QOS, 0, NULL);
     }
     if(NULL != ClientTopic) {
         MQTTClient_subscribe(client, ClientTopic, MQTT_QOS);
@@ -298,29 +293,3 @@ void *mqttWorker(void *ctx)
 }
 
 
-
-void mqttTestWorker(void)
-{
-    pthread_t thr;
-    
-    // start the mqttWorker thread
-	pthread_create(&thr, NULL, mqttWorker, "ServerTopic");
-
-    mqttUserSendMsg("topicName", "recv_Topic", (uint8_t *)"il messagio", 11 /*size_t size*/);
-    DBG_Print("Press return\n");
-
-    while(1) {
-        DBG_Print("Press return\n");
-        getchar();
-        // mqttUserSendMsg("topicName", "recv_Topic", (uint8_t *)"il messagio", 11 /*size_t size*/);
-        // DBG_Print("Press return\n");
-        // getchar();
-        // mqttProviderSendMsg("server_topicName", (uint8_t *)"il messagio del server", 22 /*size_t size*/);
-        
-        DBG_Print("Test worker waiting for User message\n");
-        uint8_t *msg1; size_t len1;
-        mqttUserWaitMsg(&msg1, &len1);
-        DBG_Print("msg = %s len = %d\n", (char *)msg1, len1);
-        mqttFree(msg1);
-    }
-}

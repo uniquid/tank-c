@@ -1,17 +1,17 @@
-/*
- * mqtt_transport.h
+/**
+ * @file   mqtt_transport.h
  *
- *  Created on: 18/nov/2016
- *      Author: M. Palumbi
+ * @date   18/nov/2016
+ * @author M. Palumbi
  */
 
 #ifndef __MQTT_TRANSPORT_H
 #define __MQTT_TRANSPORT_H
 
+#include <stdint.h>
 #include "MQTTClient.h"
 
-#define DEFAULT_MQTT_ADDRESS     "tcp://10.0.0.4:1883"
-//#define DEFAULT_MQTT_ADDRESS     "tcp://broker.mqttdashboard.com:1883"
+#define DEFAULT_MQTT_ADDRESS     "tcp://broker.mqttdashboard.com:1883"
 #define MQTT_QOS 1
 
 extern char mqtt_address[256];

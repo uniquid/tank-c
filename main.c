@@ -44,7 +44,9 @@
 //#define MAX_SIZEOF(var1, var2)  ( (sizeof((var1)) > sizeof((var2)) )? sizeof((var1)) : sizeof((var2)) )
 //static char buf[MAX_SIZEOF(pIdentity->keyPair.privateKey, pIdentity->keyPair.publicKey)*2+1];
 #define DEFAULT_INI_FILE "./tank-c.ini"
+#define DEFAULT_ANNOUNCE_TOPIC "UID/announce"
 
+char *pAnnounceTopic = DEFAULT_ANNOUNCE_TOPIC;
 
 // Update Cache Thread
 // gets contracts from the BlockChain and updates the local cache
@@ -313,6 +315,7 @@ static int fake = 0;
 static char lbuffer[1024];
 static char applianceUrl[256]= {0};
 static char registryUrl[256]= {0};
+static char announceTopic[256] = {0};
 
 /**
  * loads configuration parameters from ini_file - ./tank-c.ini
@@ -322,6 +325,7 @@ static char registryUrl[256]= {0};
  * debug level: 7
  * fake MAC: 1
  * mqtt_address: tcp://10.0.0.4:1883
+ * announce_topic: UID/announce
  * UID_appliance: http://appliance3.uniquid.co:8080/insight-api
  * UID_registry: http://appliance4.uniquid.co:8080/registry
  * UID_confirmations: 1
@@ -345,6 +349,9 @@ void loadConfiguration(char *ini_file)
 
 			snprintf(format, sizeof(format),  "UID_registry: %%%zus\n", sizeof(registryUrl) - 1);
 			if (1 == sscanf(lbuffer, format,  registryUrl)) UID_pRegistryURL = registryUrl;
+
+			snprintf(format, sizeof(format),  "announce_topic: %%%zus\n", sizeof(announceTopic) - 1);
+			if (1 == sscanf(lbuffer, format,  announceTopic)) pAnnounceTopic = announceTopic;
 
 #pragma GCC diagnostic pop
 
@@ -454,17 +461,21 @@ int main( int argc, char **argv )
 	// snprintf(topic, sizeof(topic), "%s%02x%02x%02x%02x%02x%02x", TOPIC, mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
 	// puts(topic);
 
-	snprintf(lbuffer, sizeof(lbuffer), "{\"name\":\"%s\",\"xpub\":\"%s\"}", myname, UID_getTpub());
-	QRcode *qr = QRcode_encodeString(lbuffer, 0, 1, QR_MODE_8, 1);
-	text_qr(qr, bw);
-	text_qr(qr, wb);
-	DBG_Print("%s\n", lbuffer);
-
 	signal(SIGCHLD, SIG_IGN);  // prevents the child process to become zombies
 	//restarts the machine if it dies (es. if it is called some error exit)
 	pid_t pid;
 	while(1) if ((pid = fork()) == 0) break;
 			else wait(NULL);
+
+    // start the mqttWorker thread
+	pthread_create(&thr, NULL, mqttWorker, myname);
+
+	snprintf(lbuffer, sizeof(lbuffer), "{\"name\":\"%s\",\"xpub\":\"%s\"}", myname, UID_getTpub());
+	QRcode *qr = QRcode_encodeString(lbuffer, 0, 1, QR_MODE_8, 1);
+	text_qr(qr, bw);
+	text_qr(qr, wb);
+	mqttProviderSendMsg(pAnnounceTopic, (uint8_t *)lbuffer, strlen(lbuffer));
+	DBG_Print("%s\n", lbuffer);
 
 	load_contracts_cache();
 	// start the the thread that updates the 
@@ -473,9 +484,6 @@ int main( int argc, char **argv )
 
 	// start the tank thread
 	pthread_create(&thr, NULL, tank, NULL);
-
-    // start the mqttWorker thread
-	pthread_create(&thr, NULL, mqttWorker, myname);
 
 	// start the "user" thread
 	pthread_create(&thr, NULL, service_user, NULL);
