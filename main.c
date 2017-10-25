@@ -312,6 +312,7 @@ void* service_provider(void *arg)
 static int fake = 0;
 static char lbuffer[1024];
 static char applianceUrl[256]= {0};
+static char registryUrl[256]= {0};
 
 /**
  * loads configuration parameters from ini_file - ./tank-c.ini
@@ -322,6 +323,7 @@ static char applianceUrl[256]= {0};
  * fake MAC: 1
  * mqtt_address: tcp://10.0.0.4:1883
  * UID_appliance: http://appliance3.uniquid.co:8080/insight-api
+ * UID_registry: http://appliance4.uniquid.co:8080/registry
  * UID_confirmations: 1
  */
 void loadConfiguration(char *ini_file)
@@ -340,6 +342,9 @@ void loadConfiguration(char *ini_file)
 
 			snprintf(format, sizeof(format),  "UID_appliance: %%%zus\n", sizeof(applianceUrl) - 1);
 			if (1 == sscanf(lbuffer, format,  applianceUrl)) UID_pApplianceURL = applianceUrl;
+
+			snprintf(format, sizeof(format),  "UID_registry: %%%zus\n", sizeof(registryUrl) - 1);
+			if (1 == sscanf(lbuffer, format,  registryUrl)) UID_pRegistryURL = registryUrl;
 
 #pragma GCC diagnostic pop
 
