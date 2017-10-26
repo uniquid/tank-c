@@ -430,7 +430,7 @@ int main( int argc, char **argv )
 {
 	pthread_t thr;
 
-	DBG_Print("eccomi!!!!\n");
+	DBG_Print("Hello!!!!\n");
 
 	(program_name=strrchr(argv[0],'/'))?program_name++ :(program_name=argv[0]);
 	loadConfiguration(NULL);
@@ -447,19 +447,11 @@ int main( int argc, char **argv )
 
 	UID_getLocalIdentity(NULL);
 
-	// DBG_Print("privateKey:\t%s\n", tohex(pIdentity->keyPair.privateKey, sizeof(pIdentity->keyPair.privateKey), buf));
-	// DBG_Print("publicKey:\t%s\n" , tohex(pIdentity->keyPair.publicKey , sizeof(pIdentity->keyPair.publicKey) , buf));
-	// DBG_Print("address:\t\t%s\n"   , pIdentity->address);
-	// DBG_Print("orchestrator:\t%s\n", pIdentity->orchestrator);
-	// DBG_Print("balance:\t%lld\n\n", pIdentity->balance);
 	DBG_Print("tpub: %s\n", UID_getTpub());
 
 	uint8_t *mac = getMacAddress(fake);
 	snprintf(myname, sizeof(myname), "UID%02x%02x%02x%02x%02x%02x",mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
 	DBG_Print("Uniqe name %s\n", myname);
-	// extern char topic[50];
-	// snprintf(topic, sizeof(topic), "%s%02x%02x%02x%02x%02x%02x", TOPIC, mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
-	// puts(topic);
 
 	signal(SIGCHLD, SIG_IGN);  // prevents the child process to become zombies
 	//restarts the machine if it dies (es. if it is called some error exit)
