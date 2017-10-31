@@ -44,7 +44,7 @@ all: $(EXEDIR)/$(EXEFILE)
 # build the target
 $(EXEDIR)/$(EXEFILE): $(OBJS) uidcore-c/libuidcore-c.so paho.mqtt.c/build/output/libpaho-mqtt3c.so.1
 	@mkdir -p $(EXEDIR)
-	$(CC) -o $@ $(OBJS) $(LIBS) $(EXTRA_LIBS)
+	$(CC) -o $@ $(OBJS) $(EXTRA_LIBS) $(LIBS)
 	cp tank-c.ini $(EXEDIR)
 	# copy the libraries
 	@cp uidcore-c/libuidcore-c.so $(EXEDIR)
