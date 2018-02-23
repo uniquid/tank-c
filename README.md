@@ -13,6 +13,11 @@ It requires:
 * uidcore-c
 * libpaho-mqtt
 
+These packages should be enaugh to compile on a fresh installed Ubuntu 17.10<br>
+build-essential<br>
+cmake<br>
+libcurl4-openssl-dev<br>
+
 ## download
 clone with --recurse-submodules:<br>
 git clone --recurse-submodules git@github.com:uniquid/tank-c.git<br>
