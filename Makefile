@@ -57,7 +57,7 @@ uidcore-c/libuidcore-c.so:
 
 # build paho.mqtt.c library
 paho.mqtt.c/build/output/libpaho-mqtt3c.so.1:
-	make -C paho.mqtt.c
+	make -C paho.mqtt.c mkdir build/output/libpaho-mqtt3c.so.1.0
 
 $(OBJDIR)/%.o: %.c
 	@mkdir -p $(OBJDIR)
