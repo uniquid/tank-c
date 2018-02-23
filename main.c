@@ -45,8 +45,10 @@
 //static char buf[MAX_SIZEOF(pIdentity->keyPair.privateKey, pIdentity->keyPair.publicKey)*2+1];
 #define DEFAULT_INI_FILE "./tank-c.ini"
 #define DEFAULT_ANNOUNCE_TOPIC "UID/announce"
+#define DEFAULT_NAME_PREFIX "UID"
 
 char *pAnnounceTopic = DEFAULT_ANNOUNCE_TOPIC;
+char *pNamePrefix = DEFAULT_NAME_PREFIX;
 
 // Update Cache Thread
 // gets contracts from the BlockChain and updates the local cache
@@ -316,6 +318,7 @@ static char lbuffer[1024];
 static char applianceUrl[256]= {0};
 static char registryUrl[256]= {0};
 static char announceTopic[256] = {0};
+static char namePrefix[UID_NAME_LENGHT - 12 - 1] = {0};
 
 /**
  * loads configuration parameters from ini_file - ./tank-c.ini
@@ -324,6 +327,7 @@ static char announceTopic[256] = {0};
  *
  * debug level: 7
  * fake MAC: 1
+ * name_prefix: UID
  * mqtt_address: tcp://10.0.0.4:1883
  * announce_topic: UID/announce
  * UID_appliance: http://appliance3.uniquid.co:8080/insight-api
@@ -352,6 +356,9 @@ void loadConfiguration(char *ini_file)
 
 			snprintf(format, sizeof(format),  "announce_topic: %%%zus\n", sizeof(announceTopic) - 1);
 			if (1 == sscanf(lbuffer, format,  announceTopic)) pAnnounceTopic = announceTopic;
+
+			snprintf(format, sizeof(format),  "name_prefix: %%%zus\n", sizeof(namePrefix) - 1);
+			if (1 == sscanf(lbuffer, format,  namePrefix)) pNamePrefix = namePrefix;
 
 #pragma GCC diagnostic pop
 
@@ -450,7 +457,7 @@ int main( int argc, char **argv )
 	DBG_Print("tpub: %s\n", UID_getTpub());
 
 	uint8_t *mac = getMacAddress(fake);
-	snprintf(myname, sizeof(myname), "UID%02x%02x%02x%02x%02x%02x",mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
+	snprintf(myname, sizeof(myname), "%s%02x%02x%02x%02x%02x%02x",pNamePrefix, mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
 	DBG_Print("Uniqe name %s\n", myname);
 
 	signal(SIGCHLD, SIG_IGN);  // prevents the child process to become zombies
