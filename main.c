@@ -146,7 +146,7 @@ void *service_user(void *arg)
 
 	char machine[UID_NAME_LENGHT] = {0};
 	int method ;
-	char param[50] = {0};
+	char param[250] = {0};
 
     DBG_Print("Address %s ClientIID %s\n\n", mqtt_address, "myname");
 
@@ -157,7 +157,7 @@ void *service_user(void *arg)
 		DBG_Print("\n\n------------ enter request (es. UID984fee057c6d 33 {\"hello\":\"world\"} -----------------\n\n");
 		#define _STR(a) #a
 		#define STR(a) _STR(a)
-		if (3 != scanf("%" STR(UID_NAME_LENGHT) "s %d %50s", machine, &method, param)) continue;
+		if (3 != scanf("%" STR(UID_NAME_LENGHT) "s %d %" STR(sizeof(param)) "s", machine, &method, param)) continue;
 
 		// client
 		UID_ClientChannelCtx ctx;
