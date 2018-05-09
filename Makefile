@@ -11,6 +11,7 @@ EXTRA_LIBS		+= -L./uidcore-c -luidcore-c
 EXTRA_LIBS		+= -L./paho.mqtt.c/build/output/ -lpaho-mqtt3c
 
 
+unexport CFLAGS
 CFLAGS :=
 CFLAGS   += -W \
             -Wall \
@@ -42,7 +43,7 @@ OBJS := $(addprefix $(OBJDIR)/,$(OBJS))
 all: $(EXEDIR)/$(EXEFILE)
 
 # build the target
-$(EXEDIR)/$(EXEFILE): $(OBJS) uidcore-c/libuidcore-c.so paho.mqtt.c/build/output/libpaho-mqtt3c.so.1
+$(EXEDIR)/$(EXEFILE): uidcore-c/libuidcore-c.so paho.mqtt.c/build/output/libpaho-mqtt3c.so.1 $(OBJS)
 	@mkdir -p $(EXEDIR)
 	$(CC) -o $@ $(OBJS) $(EXTRA_LIBS) $(LIBS)
 	cp tank-c.ini $(EXEDIR)
