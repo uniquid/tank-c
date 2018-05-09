@@ -356,6 +356,7 @@ void* service_provider(void *arg)
 		mqttProviderWaitMsg(&msg, &size);
 		if(decodeCapability(msg)) {
 			// got capability
+			free(msg);
 			continue;
 		}
 		// server
