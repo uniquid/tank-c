@@ -32,8 +32,10 @@
 #include <sys/socket.h>
 #include <sys/eventfd.h> 
 #include <pthread.h>
+#include <inttypes.h>
 
 #include "helpers.h" 
+#include "UID_time.h"
 
 char *program_name;
 int dbg_level=7;
@@ -213,17 +215,26 @@ uint8_t *getMacAddress(int fake)
     return mac;
 }
 
-FILE *logfile = NULL;
+static FILE *logfile = NULL;
+char *logName = DEFAULT_LOG_NAME;
+char *logMode = "w";
+// char *logMode = "a";
 
 void LOG_print( char *fmt, ... )
 {
 	va_list ap;
 
-    if (logfile == NULL) logfile = fopen("access.log", "a");
+    if (logfile == NULL) logfile = fopen(logName, logMode);
 	va_start( ap, fmt );
-	fprintf( logfile, "%ld: ", time(NULL) );
+//	fprintf( logfile, "%ld: ", time(NULL) );
+	fprintf( logfile, "%" PRId64 ",", UID_getTime() );
 	vfprintf( logfile, fmt, ap );
 	va_end( ap );
 	fflush(logfile);
+}
+
+void LOG_close(void)
+{
+    fclose(logfile);
 }
 

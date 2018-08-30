@@ -98,7 +98,11 @@ void *updateCache(void *arg)
 	            cache->clientCache[i].serviceProviderName);
 	    }
         printf("\n");
-
+		if (1 <= cache->validCacheEntries) {
+			LOG_print("\"IMPRINTED\",");
+			LOG_close();
+			exit(0);
+		}
 		sleep(60);
 	}
 	return arg;
@@ -521,6 +525,9 @@ int main( int argc, char **argv )
 {
 	pthread_t thr;
 
+	logName = "log.txt";
+	LOG_print("\"START\",");
+
 	DBG_Print("Hello!!!!\n");
 
 	(program_name=strrchr(argv[0],'/'))?program_name++ :(program_name=argv[0]);
@@ -536,7 +543,9 @@ int main( int argc, char **argv )
 		exit(1);
 	}
 
+	LOG_print("\"GET_IDENTITY\",");
 	UID_getLocalIdentity(NULL);
+	LOG_print("\"CREATED_IDENTITY\",");
 
 	DBG_Print("tpub: %s\n", UID_getTpub());
 
@@ -546,9 +555,9 @@ int main( int argc, char **argv )
 
 	signal(SIGCHLD, SIG_IGN);  // prevents the child process to become zombies
 	//restarts the machine if it dies (es. if it is called some error exit)
-	pid_t pid;
-	while(1) if ((pid = fork()) == 0) break;
-			else wait(NULL);
+	// pid_t pid;
+	// while(1) if ((pid = fork()) == 0) break;
+	// 		else wait(NULL);
 
     // start the mqttWorker thread
 	pthread_create(&thr, NULL, mqttWorker, myname);
@@ -557,6 +566,7 @@ int main( int argc, char **argv )
 	QRcode *qr = QRcode_encodeString(lbuffer, 0, 1, QR_MODE_8, 1);
 	text_qr(qr, bw);
 	text_qr(qr, wb);
+	LOG_print("\"ANNOUNCING\",");
 	mqttProviderSendMsg(pAnnounceTopic, (uint8_t *)lbuffer, strlen(lbuffer));
 	DBG_Print("%s\n", lbuffer);
 

@@ -51,6 +51,10 @@ int WriteXBytes(const int sock, const char *const buffer, const size_t buflen);
 
 uint8_t *getMacAddress(int fake);
 
+#define DEFAULT_LOG_NAME "access.log"
+extern char *logName;
+
 void LOG_print( char *fmt, ... );
+void LOG_close(void);
 
 #endif
