@@ -227,7 +227,7 @@ void LOG_print( char *fmt, ... )
     if (logfile == NULL) logfile = fopen(logName, logMode);
 	va_start( ap, fmt );
 //	fprintf( logfile, "%ld: ", time(NULL) );
-	fprintf( logfile, "%" PRId64 ",", UID_getTime() );
+	fprintf( logfile, "%" PRId64, UID_getTime() );
 	vfprintf( logfile, fmt, ap );
 	va_end( ap );
 	fflush(logfile);
