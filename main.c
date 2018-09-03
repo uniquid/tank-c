@@ -99,7 +99,7 @@ void *updateCache(void *arg)
 	    }
         printf("\n");
 		if (1 <= cache->validCacheEntries) {
-			LOG_print("\"IMPRINTED\",");
+			LOG_print("");
 			LOG_close();
 			exit(0);
 		}
@@ -526,7 +526,7 @@ int main( int argc, char **argv )
 	pthread_t thr;
 
 	logName = "log.txt";
-	LOG_print("\"START\",");
+	LOG_print(",");
 
 	DBG_Print("Hello!!!!\n");
 
@@ -543,9 +543,9 @@ int main( int argc, char **argv )
 		exit(1);
 	}
 
-	LOG_print("\"GET_IDENTITY\",");
+	LOG_print(",");
 	UID_getLocalIdentity(NULL);
-	LOG_print("\"CREATED_IDENTITY\",");
+	LOG_print(",");
 
 	DBG_Print("tpub: %s\n", UID_getTpub());
 
@@ -566,7 +566,7 @@ int main( int argc, char **argv )
 	QRcode *qr = QRcode_encodeString(lbuffer, 0, 1, QR_MODE_8, 1);
 	text_qr(qr, bw);
 	text_qr(qr, wb);
-	LOG_print("\"ANNOUNCING\",");
+	LOG_print(",");
 	mqttProviderSendMsg(pAnnounceTopic, (uint8_t *)lbuffer, strlen(lbuffer));
 	DBG_Print("%s\n", lbuffer);
 
