@@ -100,27 +100,27 @@ void *updateCache(void *arg)
 	    }
         	printf("\n");
 		//tohex((uint8_t *)&(cache->contractsCache[0].profile), 80, buf)); 0xffffffff 0x00000004
-		if ( *((uint32_t *)&(cache->contractsCache[0].profile)) == 0xFFFFFFFF && _k==0) {
+		if ( *((uint32_t *)&(cache->contractsCache[0].profile.bit_mask)) == 0xFFFFFFFF && _k==0) {
 			_k++;
 			LOG_print(",");
 			//LOG_close();
 			//exit(0);
-		} else if ( *((uint32_t *)&(cache->contractsCache[0].profile)) == 0x40000000 && _k==1) {
+		} else if ( *((uint32_t *)&(cache->contractsCache[0].profile.bit_mask)) == 0x40000000 && _k==1) {
 			_k++;
 			LOG_print(",");
 			//LOG_close();
 			//exit(0);
-		} else if ( *((uint32_t *)&(cache->contractsCache[0].profile)) == 0x00000040 && _k==1) {
+		} else if ( *((uint32_t *)&(cache->contractsCache[0].profile.bit_mask)) == 0x00000040 && _k==1) {
 			_k++;
 			LOG_print(",");
 			//LOG_close();
 			//exit(0);
-		} else if (1 == cache->validClientEntries && _k==2) {
+		} else if (cache->validCacheEntries >= 2 && _k==2) {
 			_k++;
 			LOG_print(",");
 			//LOG_close();
 			//exit(0);
-		} else if (0 == cache->validClientEntries && _k==3) {
+		} else if (cache->validCacheEntries <= 1 && _k==3) {
 			_k++;
 			LOG_print("");
 			LOG_close();
