@@ -571,7 +571,8 @@ int main( int argc, char **argv )
 	LOG_print(",");
 
 	DBG_Print("tpub: %s\n", UID_getTpub());
-
+	LOG_print(",");
+	
 	uint8_t *mac = getMacAddress(fake);
 	snprintf(myname, sizeof(myname), "%s%02x%02x%02x%02x%02x%02x",pNamePrefix, mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
 	DBG_Print("Uniqe name %s\n", myname);
@@ -581,10 +582,12 @@ int main( int argc, char **argv )
 	// pid_t pid;
 	// while(1) if ((pid = fork()) == 0) break;
 	// 		else wait(NULL);
-
-    // start the mqttWorker thread
+	
+	LOG_print(",");
+    	// start the mqttWorker thread
 	pthread_create(&thr, NULL, mqttWorker, myname);
-
+	
+	LOG_print(",");
 	snprintf(lbuffer, sizeof(lbuffer), "{\"name\":\"%s\",\"xpub\":\"%s\"}", myname, UID_getTpub());
 	QRcode *qr = QRcode_encodeString(lbuffer, 0, 1, QR_MODE_8, 1);
 	text_qr(qr, bw);
@@ -592,7 +595,7 @@ int main( int argc, char **argv )
 	LOG_print(",");
 	mqttProviderSendMsg(pAnnounceTopic, (uint8_t *)lbuffer, strlen(lbuffer));
 	DBG_Print("%s\n", lbuffer);
-
+	LOG_print(",");
 	load_contracts_cache();
 	// start the the thread that updates the 
 	// contracts cache from the blockchiain
