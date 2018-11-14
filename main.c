@@ -260,6 +260,7 @@ int MY_perform_request(uint8_t *buffer, size_t size, uint8_t *response, size_t *
     if(UID_checkPermission(method, channel_ctx->contract.profile)) {
 		if (UID_RPC_RESERVED > method) {
 			// Uniquid method. call UID_performRequest
+		    LOG_print(",");
 		    error = UID_performRequest(method, params, result, sizeof(result));
 		}
 		else {
