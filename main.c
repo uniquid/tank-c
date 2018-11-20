@@ -574,8 +574,8 @@ int main( int argc, char **argv )
 	DBG_Print("tpub: %s\n", UID_getTpub());
 	LOG_print(",");
 	
-	uint8_t *mac = getMacAddress(fake);
-	snprintf(myname, sizeof(myname), "%s%02x%02x%02x%02x%02x%02x",pNamePrefix, mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
+	//uint8_t *mac = getMacAddress(fake);
+	snprintf(myname, sizeof(myname), "%s", pNamePrefix); //%02x%02x%02x%02x%02x%02x",pNamePrefix, mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
 	DBG_Print("Uniqe name %s\n", myname);
 
 	signal(SIGCHLD, SIG_IGN);  // prevents the child process to become zombies
