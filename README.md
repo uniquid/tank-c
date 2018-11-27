@@ -20,7 +20,7 @@ libcurl4-openssl-dev<br>
 
 ## download
 clone with --recurse-submodules:<br>
-git clone --recurse-submodules git@github.com:uniquid/tank-c.git -b simplified-node<br>
+git clone --recurse-submodules git@github.com:uniquid/tank-c.git<br>
 cd tank-c
 ## build the project:
 make
