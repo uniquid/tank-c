@@ -141,7 +141,7 @@ int MY_parse_result(uint8_t *buffer, size_t size, UID_ClientChannelCtx *ctx, cha
 	int ret = UID_parseRespMsg(buffer, size, sender, sizeof(sender), &error, res, rsize, &sID);
 	if ( ret ) return ret;
 	if (error) return UID_MSG_RPC_ERROR | error;
-	if (strcmp(sender, ctx->peerid)) return UID_MSG_INVALID_SENDER;
+	if (strcmp(sender, ctx->contract.serviceProviderAddress)) return UID_MSG_INVALID_SENDER;
 	if (sID != id) return UID_MSG_ID_MISMATCH;
 	return 0;
 }
@@ -178,13 +178,13 @@ void *service_user(void *arg)
 		uint8_t buffer[1024];
 		size_t size = sizeof(buffer);
 		int64_t id;
-		if ( UID_MSG_OK != (ret = UID_formatReqMsg(ctx.myid, method, param, buffer, &size, &id)) ) {
+		if ( UID_MSG_OK != (ret = UID_formatReqMsg(&ctx.contract.path, method, param, buffer, &size, &id)) ) {
 			error(0, 0, "UID_format_request() return %d\n", ret);
 			continue;
 		}
 		DBG_Print("UID_format_request %s -- %d ret = %d\n",buffer,size, ret);
 
-		mqttUserSendMsg(machine, ctx.myid, buffer, size - 1);
+		mqttUserSendMsg(machine, ctx.contract.serviceUserAddress, buffer, size - 1);
 
 		uint8_t *msg;
 		DBG_Print("-->\n");
@@ -214,20 +214,23 @@ void user_33(char *param, char *result, size_t size)
 	snprintf(result, size, "mi hai chiesto: <%s>", param);
 }
 
+#define ACCEPT_BUFFER (PARAM_BUFFER + 100)
+#define PARAM_BUFFER  (1024+512)
+#define RESULT_BUFFER (1024*3)
+#define RESP_BUFFER   (RESULT_BUFFER + 400)
+
 int MY_perform_request(uint8_t *buffer, size_t size, uint8_t *response, size_t *rsize, UID_ServerChannelCtx *channel_ctx)
 {
     int ret;
 	int method;
 	int64_t sID;
-	BTC_Address sender;
-	char params[1024];
-    char result[1024] = {0}; // must find a better way to allocate the buffer!!!
+	char params[PARAM_BUFFER];
+    char result[RESULT_BUFFER] = {0}; // must find a better way to allocate the buffer!!!
 	int error;
 
 	// parse the request
-	ret = UID_parseReqMsg(buffer, size, sender, sizeof(sender), &method, params, sizeof(params), &sID);
+	ret = UID_parseReqMsg(buffer, size, &method, params, sizeof(params), &sID);
 	if (ret) return ret;
-	if (strcmp(sender,channel_ctx->contract.serviceUserAddress)) return UID_MSG_INVALID_SENDER;
 
 	// check the contract for permission
     if(UID_checkPermission(method, channel_ctx->contract.profile)) {
@@ -271,7 +274,7 @@ int MY_perform_request(uint8_t *buffer, size_t size, uint8_t *response, size_t *
 
 
 	// format the response message
-	ret = UID_formatRespMsg(channel_ctx->contract.serviceProviderAddress, result, error, sID, response, rsize);
+	ret = UID_formatRespMsg(&(channel_ctx->contract.path), result, error, sID, response, rsize);
 	if (ret) return ret;
 
     return UID_MSG_OK;
@@ -368,7 +371,7 @@ void* service_provider(void *arg)
 		}
 		// server
 		UID_ServerChannelCtx sctx;
-		uint8_t sbuffer[1024];
+		uint8_t sbuffer[ACCEPT_BUFFER];
 		size_t ssize = sizeof(sbuffer);
 		ret = UID_accept_channel(msg, size, &sctx, sbuffer, &ssize);
 
@@ -381,7 +384,7 @@ void* service_provider(void *arg)
 		DBG_Print("contract %s %s %d\n", sctx.contract.serviceUserAddress, sctx.contract.serviceProviderAddress, sctx.contract.profile.bit_mask[0]);
 
 		DBG_Print("UID_accept_channel %s -- %d\n", sbuffer, ssize);
-		uint8_t response[1024];
+		uint8_t response[RESP_BUFFER];
 		size_t respsize = sizeof(response);
 		if ( UID_MSG_OK != (ret = MY_perform_request(sbuffer, ssize, response, &respsize, &sctx))) {
 			error(0, 0, "UID_perform_request() return %d\n", ret);
@@ -617,7 +620,7 @@ void test_message(char *machine, int method, char *param)
 		uint8_t buffer[1024];
 		size_t size = sizeof(buffer);
 		int64_t id;
-		if ( UID_MSG_OK != (ret = UID_formatReqMsg(ctx.myid, method, param, buffer, &size,  &id)) ) {
+		if ( UID_MSG_OK != (ret = UID_formatReqMsg(&ctx.contract.path, method, param, buffer, &size,  &id)) ) {
 			error(1, 0, "UID_format_request() return %d\n", ret);
 		}
 		DBG_Print("UID_format_request %s -- %d ret = %d\n",buffer,size, ret);

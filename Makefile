@@ -35,6 +35,7 @@ CFLAGS   += -W \
 EXTRA_CFLAGS	+= -I./uidcore-c -I./paho.mqtt.c/src/ -std=gnu99 -D DEBUG
 EXTRA_CFLAGS	+= -I./libqrencode
 EXTRA_CFLAGS	+= -I./uidcore-c/yajl/build/yajl-2.1.1/include
+EXTRA_CFLAGS	+= -I./uidcore-c/trezor-crypto
 
 OBJS := helpers.o main.o mqtt_transport.o tank.o
 OBJS += bitstream.o mask.o mmask.o mqrspec.o qrencode.o qrinput.o qrspec.o rscode.o split.o
