@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2018. Uniquid Inc. or its affiliates. All Rights Reserved.
+ * Copyright (c) 2018. Uniquid Inc. or its affiliates. All Rights Reserved.
  *
  * License is in the "LICENSE" file accompanying this file.
  * See the License for the specific language governing permissions and limitations under the License.
@@ -11,11 +11,11 @@
  *  Created on: 18/nov/2016
  *      Author: M. Palumbi
  */
- 
-/* 
+
+/*
  * DESCRIPTION
  * worker to manage the MQTT transport
- * 
+ *
  */
 
 /* include includes */
@@ -127,15 +127,24 @@ static int msgarrvd(void *context_, char *topicName, int topicLen, MQTTClient_me
 
 int mqttUserWaitMsg(uint8_t **msg, size_t *len)
 {
-    pthread_mutex_lock(&(usrRcvSync.mtx));
-    while(0 == usrRcvSync.val) // wait for a message
-        pthread_cond_wait(&(usrRcvSync.var), &(usrRcvSync.mtx));
+    struct timespec ts;
+    int rc = 0;
 
-    *msg = usrRcvMsg;
-    *len = usrRcvLen;
-    usrRcvSync.val = 0;
+    pthread_mutex_lock(&(usrRcvSync.mtx));
+    clock_gettime(CLOCK_REALTIME, &ts);
+    ts.tv_sec += 30;
+    while(0 == usrRcvSync.val && 0 == rc) // wait for a message
+        rc = pthread_cond_timedwait(&(usrRcvSync.var), &(usrRcvSync.mtx), &ts);
+
+    if (usrRcvSync.val != 0)
+    {
+        *msg = usrRcvMsg;
+        *len = usrRcvLen;
+        usrRcvSync.val = 0;
+        rc = 0;
+    }
     pthread_mutex_unlock(&(usrRcvSync.mtx));
-    return 0;
+    return (0 == rc ? MSG_OK : MSG_TIMED_OUT);
 }
 
 int mqttProviderWaitMsg(uint8_t **msg, size_t *len)
@@ -160,7 +169,7 @@ static void connlost(void *context, char *cause);
 static void mqttConnect(void)
 {
     int rc;
-	MQTTClient_connectOptions conn_opts = MQTTClient_connectOptions_initializer;
+    MQTTClient_connectOptions conn_opts = MQTTClient_connectOptions_initializer;
 
     // Create connection
     if (NULL == client) {
@@ -173,10 +182,10 @@ static void mqttConnect(void)
     }
 
     if (MQTTClient_isConnected(client)) return ;
-    
+
     MQTTClient_setCallbacks(client, NULL, connlost, msgarrvd, NULL/*delivered*/);
 
-    // Try to connect 
+    // Try to connect
     conn_opts.keepAliveInterval = 20;
     conn_opts.cleansession = 1;
     for(;;)
@@ -301,7 +310,7 @@ void *mqttWorker(void *ctx)
     while(1) {
         if (sync_msg.val & USER_BUFFER_HAS_DATA) {
             // I have an user message! working on it
-            
+
             if(NULL != ClientTopic) {
                 MQTTClient_unsubscribe(client, ClientTopic);
                 free(ClientTopic);
@@ -320,7 +329,7 @@ void *mqttWorker(void *ctx)
         }
         if (sync_msg.val & PROVIDER_BUFFER_HAS_DATA) {
             // I have a provider message! working on it
-            
+
             MQTTClient_publish(client, prvdStopic, prvdSndLen, prvdSndMsg, MQTT_QOS, 0, NULL);
 
             free(prvdStopic);
